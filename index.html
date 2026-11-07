@@ -40,6 +40,11 @@
         .drag-handle { cursor: grab; }
         .drag-handle:active { cursor: grabbing; }
         .grid-stack-placeholder > .placeholder-content { background-color: rgba(99, 102, 241, 0.15) !important; border: 2px dashed rgba(99, 102, 241, 0.5) !important; border-radius: 0.75rem; }
+        
+        /* Ajuste para facilitar o redimensionamento no mobile (Touch) */
+        .grid-stack-item .ui-resizable-handle.ui-resizable-se { width: 30px !important; height: 30px !important; bottom: 0 !important; right: 0 !important; background-image: none !important; }
+        .grid-stack-item .ui-resizable-handle.ui-resizable-se::after { content: ''; position: absolute; bottom: 8px; right: 8px; width: 12px; height: 12px; border-right: 3px solid #818cf8; border-bottom: 3px solid #818cf8; border-bottom-right-radius: 3px; opacity: 0.5; }
+        .grid-stack-item:hover .ui-resizable-handle.ui-resizable-se::after { opacity: 1; }
     </style>
 </head>
 <body class="h-screen flex selection:bg-brand-500 selection:text-white">
@@ -144,7 +149,7 @@
                 id: 'shortcuts', name: 'Links Rápidos', icon: 'ph-link', category: '1. Básico', headerAction: 'editShortcutsList', defaultW: 4, defaultH: 3,
                 defaultData: () => ({ links: [{n: 'Drive', u: '#'}, {n: 'Ads', u: '#'}] }),
                 render: (bId, data) => `
-                    <div class="grid grid-cols-2 gap-2 p-4 content-start">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-4 content-start">
                         ${(data.links||[]).map((l) => `
                             <a href="${l.u}" target="_blank" class="flex items-center justify-center bg-slate-800 rounded border border-slate-700 overflow-hidden text-sm font-medium text-center py-2 text-indigo-400 hover:text-white hover:bg-slate-700 transition truncate px-2">${l.n}</a>
                         `).join('')}
@@ -248,10 +253,10 @@
                 render: (bId, data) => {
                     const pct = Math.min(((data.spent||0)/(data.total||1))*100, 100)||0;
                     return `<div class="flex flex-col justify-center h-full p-4 gap-2">
-                        <input class="bg-transparent font-bold text-center text-slate-300 outline-none" value="${data.name||''}" oninput="app.updateData('${bId}',{name:this.value})">
-                        <div class="flex justify-between text-xs text-slate-400">
-                            Gasto: <input type="number" class="w-16 bg-transparent border-b border-slate-600 text-white outline-none" value="${data.spent||0}" oninput="app.updateData('${bId}',{spent:Number(this.value)})" onchange="app.refreshBlock('${bId}')">
-                            Verba: <input type="number" class="w-16 bg-transparent border-b border-slate-600 text-white outline-none" value="${data.total||0}" oninput="app.updateData('${bId}',{total:Number(this.value)})" onchange="app.refreshBlock('${bId}')">
+                        <input class="bg-transparent font-bold text-center text-slate-300 outline-none w-full" value="${data.name||''}" oninput="app.updateData('${bId}',{name:this.value})">
+                        <div class="flex justify-between text-xs text-slate-400 gap-2">
+                            <span>Gasto: <input type="number" class="w-16 sm:w-20 bg-transparent border-b border-slate-600 text-white outline-none" value="${data.spent||0}" oninput="app.updateData('${bId}',{spent:Number(this.value)})" onchange="app.refreshBlock('${bId}')"></span>
+                            <span>Verba: <input type="number" class="w-16 sm:w-20 bg-transparent border-b border-slate-600 text-white outline-none" value="${data.total||0}" oninput="app.updateData('${bId}',{total:Number(this.value)})" onchange="app.refreshBlock('${bId}')"></span>
                         </div>
                         <div class="h-4 bg-slate-800 rounded-full border border-slate-700 overflow-hidden"><div class="h-full transition-all ${pct>90?'bg-red-500':'bg-emerald-500'}" style="width:${pct}%"></div></div>
                     </div>`;
@@ -266,17 +271,17 @@
                     const winA = parseFloat(crA) > parseFloat(crB);
                     const winB = parseFloat(crB) > parseFloat(crA);
                     return `<div class="p-4 h-full flex flex-col gap-3 justify-center">
-                        <div class="grid grid-cols-2 gap-4 text-center">
-                            <div class="bg-slate-800/50 p-2 border ${winA?'border-emerald-500':'border-slate-700'} rounded">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                            <div class="bg-slate-800/50 p-2 border ${winA?'border-emerald-500':'border-slate-700'} rounded flex flex-col justify-center items-center">
                                 <div class="text-[10px] font-black text-slate-400 mb-1">VARIANTE A</div>
-                                Vis: <input type="number" class="w-12 bg-transparent border-b border-slate-600 text-white text-xs outline-none" value="${data.vA||0}" oninput="app.updateData('${bId}',{vA:Number(this.value)})" onchange="app.refreshBlock('${bId}')"><br>
-                                Conv: <input type="number" class="w-12 bg-transparent border-b border-slate-600 text-white text-xs outline-none" value="${data.cA||0}" oninput="app.updateData('${bId}',{cA:Number(this.value)})" onchange="app.refreshBlock('${bId}')">
+                                <div>Vis: <input type="number" class="w-16 bg-transparent border-b border-slate-600 text-white text-xs outline-none text-center" value="${data.vA||0}" oninput="app.updateData('${bId}',{vA:Number(this.value)})" onchange="app.refreshBlock('${bId}')"></div>
+                                <div>Conv: <input type="number" class="w-16 bg-transparent border-b border-slate-600 text-white text-xs outline-none text-center" value="${data.cA||0}" oninput="app.updateData('${bId}',{cA:Number(this.value)})" onchange="app.refreshBlock('${bId}')"></div>
                                 <div class="text-xl font-black mt-2 ${winA?'text-emerald-400':'text-slate-300'}">${crA}%</div>
                             </div>
-                            <div class="bg-slate-800/50 p-2 border ${winB?'border-emerald-500':'border-slate-700'} rounded">
+                            <div class="bg-slate-800/50 p-2 border ${winB?'border-emerald-500':'border-slate-700'} rounded flex flex-col justify-center items-center">
                                 <div class="text-[10px] font-black text-slate-400 mb-1">VARIANTE B</div>
-                                Vis: <input type="number" class="w-12 bg-transparent border-b border-slate-600 text-white text-xs outline-none" value="${data.vB||0}" oninput="app.updateData('${bId}',{vB:Number(this.value)})" onchange="app.refreshBlock('${bId}')"><br>
-                                Conv: <input type="number" class="w-12 bg-transparent border-b border-slate-600 text-white text-xs outline-none" value="${data.cB||0}" oninput="app.updateData('${bId}',{cB:Number(this.value)})" onchange="app.refreshBlock('${bId}')">
+                                <div>Vis: <input type="number" class="w-16 bg-transparent border-b border-slate-600 text-white text-xs outline-none text-center" value="${data.vB||0}" oninput="app.updateData('${bId}',{vB:Number(this.value)})" onchange="app.refreshBlock('${bId}')"></div>
+                                <div>Conv: <input type="number" class="w-16 bg-transparent border-b border-slate-600 text-white text-xs outline-none text-center" value="${data.cB||0}" oninput="app.updateData('${bId}',{cB:Number(this.value)})" onchange="app.refreshBlock('${bId}')"></div>
                                 <div class="text-xl font-black mt-2 ${winB?'text-emerald-400':'text-slate-300'}">${crB}%</div>
                             </div>
                         </div>
@@ -315,7 +320,7 @@
                 id: 'lead_score', name: 'Lead Scoring', icon: 'ph-star', category: '3. Marketing & Dados', defaultW: 4, defaultH: 4,
                 defaultData: () => ({ score: 0 }),
                 render: (bId, data) => `<div class="p-4 h-full flex flex-col items-center justify-center bg-slate-800/30">
-                    <div class="text-xs text-slate-400 font-bold mb-2 uppercase tracking-widest">Pontuação do Lead</div>
+                    <div class="text-xs text-slate-400 font-bold mb-2 uppercase tracking-widest text-center">Pontuação do Lead</div>
                     <input type="number" value="${data.score||0}" oninput="app.updateData('${bId}', {score: Number(this.value)})" onchange="app.refreshBlock('${bId}')" class="w-24 text-center bg-transparent text-5xl font-black text-yellow-400 outline-none border-b-2 border-slate-700 focus:border-yellow-500 transition-colors mb-2">
                     <div class="text-[10px] font-bold px-2 py-1 rounded ${(data.score||0) < 20 ? 'bg-slate-700 text-slate-400' : ((data.score||0) < 50 ? 'bg-orange-500/20 text-orange-400' : 'bg-red-500/20 text-red-400')}">
                         ${(data.score||0) < 20 ? 'FRIO' : ((data.score||0) < 50 ? 'MORNO' : 'QUENTE (MQL)')}
@@ -325,25 +330,25 @@
             persona: {
                 id: 'persona', name: 'Avatar/Persona', icon: 'ph-user-focus', category: '4. Estratégia & Copy', defaultW: 5, defaultH: 5,
                 defaultData: () => ({ n: 'João, 35 - Gerente', d: '- Falta de tempo\n- Custo alto', o: '- Liberdade financeira\n- Mais vendas' }),
-                render: (bId, data) => `<div class="p-4 h-full flex flex-col gap-2 overflow-y-auto no-scrollbar">
+                render: (bId, data) => `<div class="p-4 h-full flex flex-col gap-2">
                     <div class="flex items-center gap-3 border-b border-slate-700 pb-2">
                         <div class="w-10 h-10 bg-brand-500 rounded-full flex items-center justify-center text-white shrink-0"><i class="ph-bold ph-user"></i></div>
-                        <input class="bg-transparent font-black text-white outline-none flex-1" value="${data.n||''}" oninput="app.updateData('${bId}', {n: this.value})">
+                        <input class="bg-transparent font-black text-white outline-none flex-1 w-full" value="${data.n||''}" oninput="app.updateData('${bId}', {n: this.value})">
                     </div>
-                    <div class="flex-1 grid grid-cols-2 gap-2 mt-2">
-                        <div class="bg-red-500/10 border border-red-500/20 rounded p-2 flex flex-col"><span class="text-[10px] font-black text-red-400 mb-1">DORES</span><textarea class="flex-1 bg-transparent text-xs text-slate-300 outline-none resize-none no-scrollbar" oninput="app.updateData('${bId}', {d: this.value})">${data.d||''}</textarea></div>
-                        <div class="bg-emerald-500/10 border border-emerald-500/20 rounded p-2 flex flex-col"><span class="text-[10px] font-black text-emerald-400 mb-1">DESEJOS</span><textarea class="flex-1 bg-transparent text-xs text-slate-300 outline-none resize-none no-scrollbar" oninput="app.updateData('${bId}', {o: this.value})">${data.o||''}</textarea></div>
+                    <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                        <div class="bg-red-500/10 border border-red-500/20 rounded p-2 flex flex-col min-h-[100px]"><span class="text-[10px] font-black text-red-400 mb-1">DORES</span><textarea class="flex-1 bg-transparent text-xs text-slate-300 outline-none resize-none no-scrollbar w-full" oninput="app.updateData('${bId}', {d: this.value})">${data.d||''}</textarea></div>
+                        <div class="bg-emerald-500/10 border border-emerald-500/20 rounded p-2 flex flex-col min-h-[100px]"><span class="text-[10px] font-black text-emerald-400 mb-1">DESEJOS</span><textarea class="flex-1 bg-transparent text-xs text-slate-300 outline-none resize-none no-scrollbar w-full" oninput="app.updateData('${bId}', {o: this.value})">${data.o||''}</textarea></div>
                     </div>
                 </div>`
             },
             swot: {
                 id: 'swot', name: 'Matriz SWOT', icon: 'ph-squares-four', category: '4. Estratégia & Copy', defaultW: 6, defaultH: 5,
                 defaultData: () => ({ s: 'Forças...', w: 'Fraquezas...', o: 'Oportunidades...', t: 'Ameaças...' }),
-                render: (bId, data) => `<div class="p-2 h-full grid grid-cols-2 grid-rows-2 gap-2">
-                    <div class="bg-emerald-500/10 border border-emerald-500/20 rounded p-2 flex flex-col"><span class="text-[10px] font-black text-emerald-400">FORÇAS (S)</span><textarea class="flex-1 bg-transparent text-xs text-slate-300 outline-none resize-none no-scrollbar" oninput="app.updateData('${bId}',{s:this.value})">${data.s||''}</textarea></div>
-                    <div class="bg-red-500/10 border border-red-500/20 rounded p-2 flex flex-col"><span class="text-[10px] font-black text-red-400">FRAQUEZAS (W)</span><textarea class="flex-1 bg-transparent text-xs text-slate-300 outline-none resize-none no-scrollbar" oninput="app.updateData('${bId}',{w:this.value})">${data.w||''}</textarea></div>
-                    <div class="bg-blue-500/10 border border-blue-500/20 rounded p-2 flex flex-col"><span class="text-[10px] font-black text-blue-400">OPORTUNIDADES (O)</span><textarea class="flex-1 bg-transparent text-xs text-slate-300 outline-none resize-none no-scrollbar" oninput="app.updateData('${bId}',{o:this.value})">${data.o||''}</textarea></div>
-                    <div class="bg-orange-500/10 border border-orange-500/20 rounded p-2 flex flex-col"><span class="text-[10px] font-black text-orange-400">AMEAÇAS (T)</span><textarea class="flex-1 bg-transparent text-xs text-slate-300 outline-none resize-none no-scrollbar" oninput="app.updateData('${bId}',{t:this.value})">${data.t||''}</textarea></div>
+                render: (bId, data) => `<div class="p-2 h-full grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-2 gap-2">
+                    <div class="bg-emerald-500/10 border border-emerald-500/20 rounded p-2 flex flex-col min-h-[80px]"><span class="text-[10px] font-black text-emerald-400">FORÇAS (S)</span><textarea class="flex-1 bg-transparent text-xs text-slate-300 outline-none resize-none no-scrollbar w-full" oninput="app.updateData('${bId}',{s:this.value})">${data.s||''}</textarea></div>
+                    <div class="bg-red-500/10 border border-red-500/20 rounded p-2 flex flex-col min-h-[80px]"><span class="text-[10px] font-black text-red-400">FRAQUEZAS (W)</span><textarea class="flex-1 bg-transparent text-xs text-slate-300 outline-none resize-none no-scrollbar w-full" oninput="app.updateData('${bId}',{w:this.value})">${data.w||''}</textarea></div>
+                    <div class="bg-blue-500/10 border border-blue-500/20 rounded p-2 flex flex-col min-h-[80px]"><span class="text-[10px] font-black text-blue-400">OPORTUNIDADES (O)</span><textarea class="flex-1 bg-transparent text-xs text-slate-300 outline-none resize-none no-scrollbar w-full" oninput="app.updateData('${bId}',{o:this.value})">${data.o||''}</textarea></div>
+                    <div class="bg-orange-500/10 border border-orange-500/20 rounded p-2 flex flex-col min-h-[80px]"><span class="text-[10px] font-black text-orange-400">AMEAÇAS (T)</span><textarea class="flex-1 bg-transparent text-xs text-slate-300 outline-none resize-none no-scrollbar w-full" oninput="app.updateData('${bId}',{t:this.value})">${data.t||''}</textarea></div>
                 </div>`
             },
             aida: {
@@ -410,7 +415,7 @@
             clock: {
                 id: 'clock', name: 'Relógios Globais', icon: 'ph-globe', category: '5. Mídia & Ferramentas', defaultW: 4, defaultH: 2,
                 defaultData: () => ({}),
-                render: (bId) => `<div class="flex justify-around items-center h-full p-2" id="cl-${bId}"></div>`,
+                render: (bId) => `<div class="flex justify-around items-center h-full p-2 gap-2" id="cl-${bId}"></div>`,
                 onMount: (bId) => app.startClock(bId),
                 onDestroy: (bId) => clearIntervals(bId)
             },
@@ -420,15 +425,15 @@
                 render: (bId, data) => {
                     const res = `${(data.u||'').startsWith('http')?'':'https://'}${data.u||''}?utm_source=${data.s||''}&utm_medium=${data.m||''}&utm_campaign=${data.c||''}`;
                     return `<div class="p-3 h-full flex flex-col gap-2 bg-slate-800/30">
-                        <div class="grid grid-cols-2 gap-2 text-xs text-slate-400 font-bold">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-400 font-bold overflow-y-auto no-scrollbar pb-2">
                             <div>URL: <input value="${data.u||''}" oninput="app.updateData('${bId}',{u:this.value})" onchange="app.refreshBlock('${bId}')" class="w-full bg-slate-900 border border-slate-700 rounded p-1 mt-1 text-white outline-none"></div>
                             <div>Source: <input value="${data.s||''}" oninput="app.updateData('${bId}',{s:this.value})" onchange="app.refreshBlock('${bId}')" class="w-full bg-slate-900 border border-slate-700 rounded p-1 mt-1 text-white outline-none"></div>
                             <div>Medium: <input value="${data.m||''}" oninput="app.updateData('${bId}',{m:this.value})" onchange="app.refreshBlock('${bId}')" class="w-full bg-slate-900 border border-slate-700 rounded p-1 mt-1 text-white outline-none"></div>
                             <div>Campaign: <input value="${data.c||''}" oninput="app.updateData('${bId}',{c:this.value})" onchange="app.refreshBlock('${bId}')" class="w-full bg-slate-900 border border-slate-700 rounded p-1 mt-1 text-white outline-none"></div>
                         </div>
-                        <div class="mt-auto flex gap-2">
+                        <div class="mt-auto flex gap-2 shrink-0">
                             <input id="utm-${bId}" readonly value="${res}" class="flex-1 bg-slate-900 border border-slate-700 rounded px-2 text-[10px] text-brand-300">
-                            <button onclick="const el=document.getElementById('utm-${bId}'); el.select(); document.execCommand('copy'); this.innerText='Ok'; setTimeout(()=>this.innerText='Copia',1500);" class="bg-brand-600 text-white text-xs px-2 py-1 rounded font-bold">Copia</button>
+                            <button onclick="const el=document.getElementById('utm-${bId}'); el.select(); document.execCommand('copy'); this.innerText='Ok'; setTimeout(()=>this.innerText='Copia',1500);" class="bg-brand-600 text-white text-xs px-2 py-1 rounded font-bold shrink-0">Copia</button>
                         </div>
                     </div>`;
                 }
@@ -621,8 +626,17 @@
                 }});
             },
 
-            genContent: (b) => { const td=Registry[b.type] || {name: 'Bloco', icon: 'ph-square', render: () => ''}; const ac=td.headerAction?`<button onclick="app.${td.headerAction}('${b.id}')" class="text-brand-400 p-1 hover:text-white"><i class="ph-bold ph-gear"></i></button>`:'';
-            return `<div class="flex flex-col h-full"><div class="drag-handle h-8 bg-slate-800 flex justify-between items-center px-2 border-b border-slate-700 group"><div class="text-[10px] font-black text-slate-400 uppercase flex items-center gap-1"><i class="ph-bold ${td.icon}"></i> ${td.name}</div><div class="flex items-center gap-1">${ac}<button onclick="app.deleteBlock('${b.id}')" class="text-red-400 p-1 hover:text-red-300"><i class="ph-bold ph-x"></i></button></div></div><div id="content-${b.id}" class="flex-1 overflow-hidden">${td.render(b.id,b.data||{})}</div></div>`; },
+            genContent: (b) => { 
+                const td=Registry[b.type] || {name: 'Bloco', icon: 'ph-square', render: () => ''}; 
+                const ac=td.headerAction?`<button onclick="app.${td.headerAction}('${b.id}')" class="text-brand-400 p-1 hover:text-white"><i class="ph-bold ph-gear"></i></button>`:'';
+                return `<div class="flex flex-col h-full">
+                            <div class="drag-handle h-8 shrink-0 bg-slate-800 flex justify-between items-center px-2 border-b border-slate-700 group">
+                                <div class="text-[10px] font-black text-slate-400 uppercase flex items-center gap-1"><i class="ph-bold ${td.icon}"></i> ${td.name}</div>
+                                <div class="flex items-center gap-1">${ac}<button onclick="app.deleteBlock('${b.id}')" class="text-red-400 p-1 hover:text-red-300"><i class="ph-bold ph-x"></i></button></div>
+                            </div>
+                            <div id="content-${b.id}" class="flex-1 overflow-y-auto no-scrollbar">${td.render(b.id,b.data||{})}</div>
+                        </div>`; 
+            },
             
             renderDash: () => { 
                 const t=app.getActiveTab(); 
